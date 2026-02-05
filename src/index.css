@@ -1,0 +1,42 @@
+/* Reset (optional but helpful) */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Page base */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f7fb;
+  padding: 40px;
+}
+
+/* App container */
+.app {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+.app h1 {
+  color: #5c6ac4;
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+/* Button */
+.app button {
+  padding: 10px 16px;
+  font-size: 14px;
+  background-color: #5c6ac4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease
+}
