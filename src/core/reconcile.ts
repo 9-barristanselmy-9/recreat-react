@@ -4,13 +4,15 @@ import { updateDom } from "../dom/updateDom";
 export function reconcile(
   element: ReactElement,
   domNode: HTMLElement,
-  oldDomNode: ReactElement | null
+  oldDomNode: ReactElement | null,
 ) {
   //function component
 
   if (typeof element.type === "function") {
+    const oldChild = oldDomNode?.child || null;
     const child = element.type(element.props);
-    reconcile(child, domNode, oldDomNode);
+    reconcile(child, domNode, oldChild);
+    element.child = child; 
     element.dom = child.dom;
     return;
   }
@@ -20,7 +22,7 @@ export function reconcile(
       element.dom = oldDomNode.dom;
     } else {
       element.dom = document.createTextNode(element.props.nodeValue);
-      
+
       domNode.appendChild(element.dom);
     }
     return;

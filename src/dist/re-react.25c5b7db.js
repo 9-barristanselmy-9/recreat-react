@@ -718,16 +718,10 @@ var _createElement = require("./core/createElement");
 var _render = require("./core/render");
 var _app = require("./App");
 var _indexCss = require("./index.css");
-const first = (0, _createElement.createElement)("div", {
-    className: "app"
-}, "Hello");
-const second = (0, _createElement.createElement)("div", {
-    className: "app"
-}, "Hello again");
 const root = document.getElementById("root");
 (0, _render.render)((0, _createElement.createElement)((0, _app.App), null), root);
 
-},{"./core/createElement":"4bNaB","./core/render":"8aXUx","./index.css":"ngXMy","./App":"eG48y"}],"4bNaB":[function(require,module,exports,__globalThis) {
+},{"./core/createElement":"4bNaB","./core/render":"8aXUx","./App":"eG48y","./index.css":"ngXMy"}],"4bNaB":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createElement", ()=>createElement);
@@ -787,13 +781,20 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
 var _reconcile = require("./reconcile");
+var _useState = require("../hooks/useState");
 let currentRoot = null;
 function render(element, domNode) {
+    //full wipe the dom TODO: optimize this by only removing the old root
+    (0, _useState.resetHooks)();
+    (0, _useState.setRerenderCallback)(()=>{
+        (0, _useState.resetHooks)();
+        render(element, domNode);
+    });
     (0, _reconcile.reconcile)(element, domNode, currentRoot);
     currentRoot = element;
 }
 
-},{"./reconcile":"jCCxH","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"jCCxH":[function(require,module,exports,__globalThis) {
+},{"./reconcile":"jCCxH","../hooks/useState":"hEIzl","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"jCCxH":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "reconcile", ()=>reconcile);
@@ -801,8 +802,10 @@ var _updateDom = require("../dom/updateDom");
 function reconcile(element, domNode, oldDomNode) {
     //function component
     if (typeof element.type === "function") {
+        const oldChild = oldDomNode?.child || null;
         const child = element.type(element.props);
-        reconcile(child, domNode, oldDomNode);
+        reconcile(child, domNode, oldChild);
+        element.child = child;
         element.dom = child.dom;
         return;
     }
@@ -859,20 +862,53 @@ function updateDom(domNode, prevProps, nextProps) {
     });
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"ngXMy":[function() {},{}],"eG48y":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"hEIzl":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "setRerenderCallback", ()=>setRerenderCallback);
+parcelHelpers.export(exports, "resetHooks", ()=>resetHooks);
+parcelHelpers.export(exports, "useState", ()=>useState);
+let hooks = [];
+let currentHookIndex = 0;
+let rerenderCallback = null;
+function setRerenderCallback(callback) {
+    rerenderCallback = callback;
+}
+function resetHooks() {
+    currentHookIndex = 0;
+}
+function useState(initialValue) {
+    const index = currentHookIndex;
+    if (hooks[index] === undefined) hooks[index] = initialValue;
+    const setState = (newState)=>{
+        hooks[index] = newState;
+        setTimeout(()=>{
+            rerenderCallback?.();
+        }, 0);
+    };
+    currentHookIndex++;
+    return [
+        hooks[index],
+        setState
+    ];
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"eG48y":[function(require,module,exports,__globalThis) {
 // App.ts
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "App", ()=>App);
 var _createElement = require("./core/createElement");
+var _useState = require("./hooks/useState");
 function App() {
+    const [count, setCount] = (0, _useState.useState)(0);
     return (0, _createElement.createElement)("div", {
         className: "main"
-    }, (0, _createElement.createElement)("h1", null, "Hello, World!"), (0, _createElement.createElement)("button", {
-        onClick: ()=>alert("clicked")
-    }, "Click me"));
+    }, (0, _createElement.createElement)("h1", null, "Hello, World!"), (0, _createElement.createElement)("h2", {}, "Count: ", count), (0, _createElement.createElement)("button", {
+        onClick: ()=>setCount(count + 1)
+    }, "increment"));
 }
 
-},{"./core/createElement":"4bNaB","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}]},["7B9u7","9mLei"], "9mLei", "parcelRequire94c2", {})
+},{"./core/createElement":"4bNaB","./hooks/useState":"hEIzl","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"ngXMy":[function() {},{}]},["7B9u7","9mLei"], "9mLei", "parcelRequire94c2", {})
 
 //# sourceMappingURL=re-react.25c5b7db.js.map
